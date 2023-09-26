@@ -79,32 +79,44 @@ class ViewController: UIViewController {
                     break
                 }
             } receiveValue: { placemark in
+                let postalCode = placemark.postalCode ?? "-"
+                let isoCountryCode = placemark.isoCountryCode ?? "-"
+                let country = placemark.country ?? "-"
+                let administrativeArea = placemark.administrativeArea ?? "-"
+                let locality = placemark.locality ?? "-"
+                let subLocality = placemark.subLocality ?? "-"
+                let name = placemark.name ?? "-"
+                let areasOfInterest = placemark.areasOfInterest ?? ["-"]
+                let subAdministrativeArea = placemark.subAdministrativeArea ?? "-"
+                let inlandWater = placemark.inlandWater ?? "-"
+                let ocean = placemark.ocean ?? "-"
+
                 let infomation = """
-postalCode: \(placemark.postalCode ?? "-")
-isoCountryCode: \(placemark.isoCountryCode ?? "-")
-country: \(placemark.country ?? "-")
-administrativeArea: \(placemark.administrativeArea ?? "-")
-locality: \(placemark.locality ?? "-")
-subLocality: \(placemark.subLocality ?? "-")
-name: \(placemark.name ?? "-")
-areasOfInterest: \(placemark.areasOfInterest ?? ["-"])
-subAdministrativeArea: \(placemark.subAdministrativeArea ?? "-")
-inlandWater: \(placemark.inlandWater ?? "-")
-ocean: \(placemark.ocean ?? "-")
+postalCode: \(postalCode)
+isoCountryCode: \(isoCountryCode)
+country: \(country)
+administrativeArea: \(administrativeArea)
+locality: \(locality)
+subLocality: \(subLocality)
+name: \(name)
+areasOfInterest: \(areasOfInterest)
+subAdministrativeArea: \(subAdministrativeArea)
+inlandWater: \(inlandWater)
+ocean: \(ocean)
 """
                 self.infomationLabel.text = infomation
 
                 ///1.광역시, 특별시 등 도이름과 시이름이 같을 경우
                 ///2.name이 sublocality를 포함하는 경우
                 ///3.둘다인경우
-                if placemark.administrativeArea == placemark.locality && (placemark.name ?? "name").contains(placemark.subLocality ?? "sublocality") {
-                    self.addressLabel.text = "\(placemark.country ?? "") \(placemark.administrativeArea ?? "") \(placemark.subAdministrativeArea ?? "") \(placemark.name ?? ""), \(placemark.postalCode ?? "")"
-                } else if placemark.administrativeArea == placemark.locality {
-                    self.addressLabel.text = "\(placemark.country ?? "") \(placemark.administrativeArea ?? "") \(placemark.subAdministrativeArea ?? "") \(placemark.subLocality ?? "") \(placemark.name ?? ""), \(placemark.postalCode ?? "")"
-                } else if (placemark.name ?? "name").contains(placemark.subLocality ?? "sublocality") {
-                    self.addressLabel.text = "\(placemark.country ?? "") \(placemark.administrativeArea ?? "") \(placemark.subAdministrativeArea ?? "") \(placemark.locality ?? "") \(placemark.name ?? ""), \(placemark.postalCode ?? "")"
+                if administrativeArea == locality && name.contains(subLocality) {
+                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(name), \(postalCode)"
+                } else if administrativeArea == locality {
+                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(subLocality) \(name), \(postalCode)"
+                } else if name.contains(subLocality) {
+                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(locality) \(name), \(postalCode)"
                 } else {
-                    self.addressLabel.text = "\(placemark.country ?? "") \(placemark.administrativeArea ?? "") \(placemark.subAdministrativeArea ?? "") \(placemark.locality ?? "") \(placemark.subLocality ?? "") \(placemark.name ?? ""), \(placemark.postalCode ?? "")"
+                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(locality) \(subLocality) \(name), \(postalCode)"
                 }
             }.store(in: &subscriptions)
     }
