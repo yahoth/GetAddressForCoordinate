@@ -10,4 +10,9 @@ import CoreLocation
 
 class KakaoAPIViewModel {
     @Published var coordinate: CLLocationCoordinate2D?
+    let session = URLSession(configuration: .default)
+
+    func load() {
+
+    }
 }
