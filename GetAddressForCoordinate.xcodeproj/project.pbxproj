@@ -70,20 +70,68 @@
 		7631BFA92ABD756600CDB9DE /* GetAddressForCoordinate */ = {
 			isa = PBXGroup;
 			children = (
-				7631BFAA2ABD756600CDB9DE /* AppDelegate.swift */,
-				7631BFAC2ABD756600CDB9DE /* SceneDelegate.swift */,
-				7696AE8E2B3D7DEA00D3B172 /* TabBarController.swift */,
-				7696AE922B3D7F2B00D3B172 /* BaseViewController.swift */,
-				7696AE992B3D803200D3B172 /* KakaoAPIViewModel.swift */,
-				7631BFAE2ABD756600CDB9DE /* AppleAPIViewController.swift */,
-				7696AE902B3D7E4400D3B172 /* KakaoAPIViewController.swift */,
+				7696AEA52B3D941300D3B172 /* App */,
+				7696AEA02B3D93BE00D3B172 /* Views */,
+				7696AEA12B3D93CF00D3B172 /* ViewModel */,
+				7696AEA42B3D93FF00D3B172 /* Model */,
 				7696AE9E2B3D910800D3B172 /* UserData.swift */,
-				7696AE9C2B3D8C7500D3B172 /* KakaoAPIRequest.swift */,
 				7631BFB32ABD756800CDB9DE /* Assets.xcassets */,
 				7631BFB52ABD756800CDB9DE /* LaunchScreen.storyboard */,
 				7631BFB82ABD756800CDB9DE /* Info.plist */,
 			);
 			path = GetAddressForCoordinate;
+			sourceTree = "<group>";
+		};
+		7696AEA02B3D93BE00D3B172 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7696AE8E2B3D7DEA00D3B172 /* TabBarController.swift */,
+				7696AE922B3D7F2B00D3B172 /* BaseViewController.swift */,
+				7696AEA22B3D93DD00D3B172 /* AppleAPIView */,
+				7696AEA32B3D93E200D3B172 /* KakaoAPIView */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		7696AEA12B3D93CF00D3B172 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				7696AE992B3D803200D3B172 /* KakaoAPIViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		7696AEA22B3D93DD00D3B172 /* AppleAPIView */ = {
+			isa = PBXGroup;
+			children = (
+				7631BFAE2ABD756600CDB9DE /* AppleAPIViewController.swift */,
+			);
+			path = AppleAPIView;
+			sourceTree = "<group>";
+		};
+		7696AEA32B3D93E200D3B172 /* KakaoAPIView */ = {
+			isa = PBXGroup;
+			children = (
+				7696AE902B3D7E4400D3B172 /* KakaoAPIViewController.swift */,
+			);
+			path = KakaoAPIView;
+			sourceTree = "<group>";
+		};
+		7696AEA42B3D93FF00D3B172 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				7696AE9C2B3D8C7500D3B172 /* KakaoAPIRequest.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		7696AEA52B3D941300D3B172 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				7631BFAC2ABD756600CDB9DE /* SceneDelegate.swift */,
+				7631BFAA2ABD756600CDB9DE /* AppDelegate.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -12,13 +12,39 @@ import Combine
 
 import SnapKit
 
-/// "1600 Pennsylvania Ave NW, Washington, DC, 20500"
 class AppleAPIViewController: BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         bind()
     }
+
+    func bind() {
+        $coordinate
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { coordinate in
+                Task {
+                    self.addressLabel.text = try await self.reverseGeocodeLocation(coordinate)
+                }
+            }.store(in: &subscriptions)
+    }
+
+    func reverseGeocodeLocation(_ coordinate: CLLocationCoordinate2D) async throws -> String {
+        let geocoder = CLGeocoder()
+        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let placemark = try await geocoder.reverseGeocodeLocation(location).first
+        //간단한 주소
+        //let result = "\(placemark?.locality ?? "") \(placemark?.subLocality ?? "")"
+
+        //외국 주소
+        /// "1600 Pennsylvania Ave NW, Washington, DC, 20500"
+        /// subThoroughfare thoroughfare, locality, administrativeArea, postalCode, country
+        let result = "\(placemark?.subThoroughfare ?? String()) \(placemark?.thoroughfare ?? String()), \(placemark?.locality ?? String()), \(placemark?.administrativeArea ?? String()), \(placemark?.postalCode ?? String()), \(placemark?.country ?? String())"
+        return result
+    }
+
+}
 
 //    private func bind() {
 //          $coordinate
@@ -79,30 +105,3 @@ class AppleAPIViewController: BaseViewController {
 //                self.addressLabel.text = "\(subThoroughfare) \(thoroughfare), \(locality), \(administrativeArea), \(postalCode), \(country)"
 //            }.store(in: &subscriptions)
 //    }
-
-    func bind() {
-        $coordinate
-            .compactMap { $0 }
-            .receive(on: DispatchQueue.main)
-            .sink { coordinate in
-                Task {
-                    self.addressLabel.text = try await self.reverseGeocodeLocation(coordinate)
-                }
-            }.store(in: &subscriptions)
-    }
-
-    func reverseGeocodeLocation(_ coordinate: CLLocationCoordinate2D) async throws -> String {
-        let geocoder = CLGeocoder()
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        let placemark = try await geocoder.reverseGeocodeLocation(location).first
-        //간단한 주소
-        //let result = "\(placemark?.locality ?? "") \(placemark?.subLocality ?? "")"
-
-        //외국 주소
-        /// "1600 Pennsylvania Ave NW, Washington, DC, 20500"
-        /// subThoroughfare thoroughfare, locality, administrativeArea, postalCode, country
-        let result = "\(placemark?.subThoroughfare ?? String()) \(placemark?.thoroughfare ?? String()), \(placemark?.locality ?? String()), \(placemark?.administrativeArea ?? String()), \(placemark?.postalCode ?? String()), \(placemark?.country ?? String())"
-        return result
-    }
-
-}
