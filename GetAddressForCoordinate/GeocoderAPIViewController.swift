@@ -10,7 +10,8 @@ import MapKit
 import CoreLocation
 import Combine
 
-class ViewController: UIViewController {
+/// "1600 Pennsylvania Ave NW, Washington, DC, 20500"
+class GeocoderAPIViewController: UIViewController {
 
     let mapView: MKMapView = {
         let mapView = MKMapView()
@@ -33,14 +34,26 @@ class ViewController: UIViewController {
     }()
 
     @Published var coordinate: CLLocationCoordinate2D?
+
+    let defaultPlacemark: CLPlacemark = {
+        let location = CLLocation(latitude: 37.5665, longitude: 126.9780) // 서울 좌표
+        let placemark = MKPlacemark(coordinate: location.coordinate)
+        return placemark
+    }()
+
     var subscriptions = Set<AnyCancellable>()
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setConstrains()
-        addGestureToMapView()
+        addTapGestureToMapView()
         bind()
+
+//        let identifier = Locale.current.identifier
+//        guard let regionCode = Locale.current.region?.identifier else { return }
+//        guard let languageCode = Locale.current.language.languageCode?.identifier else { return }
+//        print("identifier = \(identifier), region = \(regionCode), language = \(languageCode)")
     }
 
     private func setConstrains() {
@@ -69,27 +82,26 @@ class ViewController: UIViewController {
             .flatMap { coordinate in
                 print(coordinate)
                 return self.getPlaceMark(for: coordinate)
+                    .catch { error -> Just<CLPlacemark> in  // Catch errors.
+                        print("Failed with error: \(error)")
+                        return Just(self.defaultPlacemark)  // Provide a default value.
+                    }
             }
             .receive(on: RunLoop.main)
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    print("Failed with error: \(error)")
-                case .finished:
-                    break
-                }
-            } receiveValue: { placemark in
-                let postalCode = placemark.postalCode ?? "-"
-                let isoCountryCode = placemark.isoCountryCode ?? "-"
-                let country = placemark.country ?? "-"
-                let administrativeArea = placemark.administrativeArea ?? "-"
-                let locality = placemark.locality ?? "-"
-                let subLocality = placemark.subLocality ?? "-"
-                let name = placemark.name ?? "-"
-                let areasOfInterest = placemark.areasOfInterest ?? ["-"]
-                let subAdministrativeArea = placemark.subAdministrativeArea ?? "-"
-                let inlandWater = placemark.inlandWater ?? "-"
-                let ocean = placemark.ocean ?? "-"
+            .sink { placemark in
+                let postalCode = placemark.postalCode ?? String()
+                let isoCountryCode = placemark.isoCountryCode ?? String()
+                let country = placemark.country ?? String()
+                let administrativeArea = placemark.administrativeArea ?? String()
+                let locality = placemark.locality ?? String()
+                let subLocality = placemark.subLocality ?? String()
+                let name = placemark.name ?? String()
+                let areasOfInterest = placemark.areasOfInterest ?? []
+                let subAdministrativeArea = placemark.subAdministrativeArea ?? String()
+                let inlandWater = placemark.inlandWater ?? String()
+                let ocean = placemark.ocean ?? String()
+                let thoroughfare = placemark.thoroughfare ?? String()
+                let subThoroughfare = placemark.subThoroughfare ?? String()
 
                 let infomation = """
 postalCode: \(postalCode)
@@ -103,6 +115,8 @@ areasOfInterest: \(areasOfInterest)
 subAdministrativeArea: \(subAdministrativeArea)
 inlandWater: \(inlandWater)
 ocean: \(ocean)
+thoroughfare: \(thoroughfare)
+subThoroughfare: \(subThoroughfare)
 """
                 self.infomationLabel.text = infomation
 
@@ -110,14 +124,15 @@ ocean: \(ocean)
                 ///2.name이 sublocality를 포함하는 경우
                 ///3.둘다인경우
                 if administrativeArea == locality && name.contains(subLocality) {
-                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(name), \(postalCode)"
+                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(name)"
                 } else if administrativeArea == locality {
-                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(subLocality) \(name), \(postalCode)"
+                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(subLocality) \(name)"
                 } else if name.contains(subLocality) {
-                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(locality) \(name), \(postalCode)"
+                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(locality) \(name)"
                 } else {
-                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(locality) \(subLocality) \(name), \(postalCode)"
+                    self.addressLabel.text = "\(country) \(administrativeArea) \(subAdministrativeArea) \(locality) \(subLocality) \(name)"
                 }
+                self.addressLabel.text = "\(subThoroughfare) \(thoroughfare), \(locality), \(administrativeArea), \(postalCode), \(country)"
             }.store(in: &subscriptions)
     }
 
@@ -132,14 +147,12 @@ ocean: \(ocean)
                 ///1. Placemarks가 nil일 경우 (장소에 대한 정보가 전혀 없음)
                 ///2. 정보를 가져오는 과정에서  error가 있을 경우
                 if let error = error {
-                    print("1")
                     promise(.failure(error))
                     return
                 }
 
                 ///Placemarks가 nil이 아니지만, 빈배열일 경우
                 guard let placemark = placemarks?.first else {
-                        print("2")
                     promise(.failure(CLError(.geocodeFoundNoResult)))
                     return
                 }
@@ -149,19 +162,22 @@ ocean: \(ocean)
         }
     }
 
-    private func addGestureToMapView() {
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        longPressGesture.minimumPressDuration = 0.3 // 사용자가 화면을 길게 누르는 최소 시간 설정
-        mapView.addGestureRecognizer(longPressGesture)
+    private func addTapGestureToMapView() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(mapTapped(_:)))
+//        longPressGesture.minimumPressDuration = 0.3 // 사용자가 화면을 길게 누르는 최소 시간 설정
+        mapView.addGestureRecognizer(tapGesture)
     }
 
-    @objc func handleLongPress(_ gestureRecognizer : UILongPressGestureRecognizer) {
-         if gestureRecognizer.state != .began { return }
+    @objc func mapTapped(_ gestureRecognizer : UITapGestureRecognizer) {
+        if gestureRecognizer.state != .ended { return }
 
          let touchPoint = gestureRecognizer.location(in: mapView)
          let coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
 
         self.coordinate = coordinate
+        print(coordinate)
      }
 }
 
+//외국 주소
+/// subThoroughfare thoroughfare, locality, administrativeArea, postalCode, country
