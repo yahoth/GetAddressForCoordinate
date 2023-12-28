@@ -11,7 +11,7 @@ class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let geocoderVC = GeocoderAPIViewController()
+        let geocoderVC = AppleAPIViewController()
         geocoderVC.tabBarItem = UITabBarItem(title: "Apple API", image: UIImage(systemName: "apple.logo"), tag: 0)
 
         let kakaoVC = KakaoAPIViewController()
