@@ -16,13 +16,13 @@ class AppleAPIViewModel {
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
         let placemark = try await geocoder.reverseGeocodeLocation(location).first
         //간단한 주소
-        //let result = "\(placemark?.locality ?? "") \(placemark?.subLocality ?? "")"
+        let result = "\(placemark?.locality ?? String()) \(placemark?.subLocality ?? String())"
 
-        //외국 주소
-        /// "1600 Pennsylvania Ave NW, Washington, DC, 20500"
-        /// subThoroughfare thoroughfare, locality, administrativeArea, postalCode, country
-        let result = "\(placemark?.subThoroughfare ?? String()) \(placemark?.thoroughfare ?? String()), \(placemark?.locality ?? String()), \(placemark?.administrativeArea ?? String()), \(placemark?.postalCode ?? String()), \(placemark?.country ?? String())"
-        addressName = result
+        if result.trimmingCharacters(in: .whitespaces).count > 0 {
+            addressName = result
+        } else {
+            addressName = "lat: \(coordinate.latitude), long: \(coordinate.longitude)"
+        }
     }
 
     func updateAddres(to coordinate: CLLocationCoordinate2D) {
