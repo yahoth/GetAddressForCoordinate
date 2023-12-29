@@ -15,7 +15,6 @@ class BaseViewController: UIViewController {
 
     var mapView: MKMapView!
     var addressLabel: UILabel!
-    @Published var coordinate: CLLocationCoordinate2D?
     var subscriptions = Set<AnyCancellable>()
 
     override func viewDidLoad() {
@@ -23,26 +22,14 @@ class BaseViewController: UIViewController {
         setMapView()
         setAddressLabel()
         addTapGestureToMapView()
-//        bind()
     }
-
-//    func bind() {
-//        vm.$coordinate
-//            .receive(on: DispatchQueue.main)
-//            .sink { coordinate in
-//                self.reverseGeocoder()
-//            }.store(in: &subscriptions)
-//    }
-
-//    func reverseGeocoder() {
-//
-//    }
 
     func setAddressLabel() {
         addressLabel = UILabel()
         addressLabel.font = .systemFont(ofSize: 20)
         addressLabel.textColor = .label
         addressLabel.textAlignment = .center
+        addressLabel.numberOfLines = 0
         view.addSubview(addressLabel)
         setAddressLabelConstraints()
 
@@ -81,9 +68,13 @@ class BaseViewController: UIViewController {
          let touchPoint = gestureRecognizer.location(in: mapView)
          let coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
 
-        self.coordinate = coordinate
+        coordinateChanged(to: coordinate)
         print(coordinate)
      }
+    
+    func coordinateChanged(to coordinate: CLLocationCoordinate2D) {
+
+    }
 }
 
 extension BaseViewController: MKMapViewDelegate {

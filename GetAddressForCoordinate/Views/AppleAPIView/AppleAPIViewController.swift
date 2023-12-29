@@ -13,35 +13,26 @@ import Combine
 import SnapKit
 
 class AppleAPIViewController: BaseViewController {
-
+    var vm: AppleAPIViewModel!
     override func viewDidLoad() {
         super.viewDidLoad()
+        vm = AppleAPIViewModel()
         bind()
     }
 
     func bind() {
-        $coordinate
+        vm.$addressName
             .compactMap { $0 }
             .receive(on: DispatchQueue.main)
-            .sink { coordinate in
-                Task {
-                    self.addressLabel.text = try await self.reverseGeocodeLocation(coordinate)
-                }
+            .sink { address in
+                self.addressLabel.text = address
             }.store(in: &subscriptions)
     }
 
-    func reverseGeocodeLocation(_ coordinate: CLLocationCoordinate2D) async throws -> String {
-        let geocoder = CLGeocoder()
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        let placemark = try await geocoder.reverseGeocodeLocation(location).first
-        //간단한 주소
-        //let result = "\(placemark?.locality ?? "") \(placemark?.subLocality ?? "")"
 
-        //외국 주소
-        /// "1600 Pennsylvania Ave NW, Washington, DC, 20500"
-        /// subThoroughfare thoroughfare, locality, administrativeArea, postalCode, country
-        let result = "\(placemark?.subThoroughfare ?? String()) \(placemark?.thoroughfare ?? String()), \(placemark?.locality ?? String()), \(placemark?.administrativeArea ?? String()), \(placemark?.postalCode ?? String()), \(placemark?.country ?? String())"
-        return result
+
+    override func coordinateChanged(to coordinate: CLLocationCoordinate2D) {
+        vm.updateAddres(to: coordinate)
     }
 
 }
