@@ -30,4 +30,38 @@ class AppleAPIViewModel {
             try await reverseGeocodeLocation(coordinate)
         }
     }
+
+    func updateAddressInKorea(_ placemark: CLPlacemark) -> String {
+
+        let postalCode = placemark.postalCode ?? String()
+        let isoCountryCode = placemark.isoCountryCode ?? String()
+        let country = placemark.country ?? String()
+        let administrativeArea = placemark.administrativeArea ?? String()
+        let locality = placemark.locality ?? String()
+        let subLocality = placemark.subLocality ?? String()
+        let name = placemark.name ?? String()
+        let areasOfInterest = placemark.areasOfInterest ?? []
+        let subAdministrativeArea = placemark.subAdministrativeArea ?? String()
+        let inlandWater = placemark.inlandWater ?? String()
+        let ocean = placemark.ocean ?? String()
+        let thoroughfare = placemark.thoroughfare ?? String()
+        let subThoroughfare = placemark.subThoroughfare ?? String()
+
+        return addressInKorea()
+
+        func addressInKorea() -> String {
+            ///1.광역시, 특별시 등 도이름과 시이름이 같을 경우
+            ///2.name이 sublocality를 포함하는 경우
+            ///3.둘다인경우
+            if administrativeArea == locality && name.contains(subLocality) {
+                return "\(country) \(administrativeArea) \(subAdministrativeArea) \(name)"
+            } else if administrativeArea == locality {
+                return "\(country) \(administrativeArea) \(subAdministrativeArea) \(subLocality) \(name)"
+            } else if name.contains(subLocality) {
+                return "\(country) \(administrativeArea) \(subAdministrativeArea) \(locality) \(name)"
+            } else {
+                return "\(country) \(administrativeArea) \(subAdministrativeArea) \(locality) \(subLocality) \(name)"
+            }
+        }
+    }
 }
